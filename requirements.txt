@@ -1,0 +1,4 @@
+# aws-env-update
+argparse==1.2.1
+python-gnupg==0.3.8
+
