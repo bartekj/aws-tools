@@ -51,8 +51,8 @@ def main():
     private_keys = gpg.list_keys(True)
     if not private_keys:
         log.error('No private key(s) found! Please check your GPG config')
-    phrase = getpass.getpass("Enter the passphrase to decrypt the env file: ")
     stream = open(encrypted_credentials_file, "rb")
+    phrase = getpass.getpass("Enter the passphrase to decrypt the env file: ")
     output = gpg.decrypt_file(stream, passphrase=phrase)
     aws_credentials_patterns = ("aws_access_key_id", "aws_secret_access_key")
     if output.status == 'decryption failed':
