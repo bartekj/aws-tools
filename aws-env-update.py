@@ -9,8 +9,8 @@ import sys
 import gnupg
 
 debug = 0
-user = os.environ['USER']
-aws_config_dir = '/home/{0}/.aws/'.format(user)
+home = os.environ['HOME']
+aws_config_dir = '{}/.aws/'.format(home)
 credential_file = '{0}/credentials'.format(aws_config_dir)
 
 def get_args():
@@ -18,7 +18,7 @@ def get_args():
     parser = argparse.ArgumentParser(__file__, formatter_class=argparse.RawDescriptionHelpFormatter,
                                     description=('''\
 Simple script that will pick up gpg encrypted files from ~/.aws
-and save them in the /home/{$username}/.aws/credentials file\
+and save them in the ${HOME}/.aws/credentials file\
 Example usage:\n\n\tx1:~$ awsenv test \n'''),
                                     epilog="Copyright (C) 2016 Bart Jakubowski <bartekj@gmail.com>")
     parser.add_argument("-e", "--env", help="environment name", choices=['test', 'qa', 'prod'], required=True)
@@ -40,14 +40,14 @@ def main():
 
     encrypted_credentials_file = os.path.join(os.sep, aws_config_dir, 'env.{0}.conf.asc'.format(env))
 
-    log.info('''Variables dump:\n\tenv : {0}\n\tuser : {1}\n\taws_config_dir : {2}\n\tencrypted_credentials_file : {3}
-    \tcredential_file : {4}'''.format(env, user, aws_config_dir, encrypted_credentials_file, credential_file))
+    log.info('''Variables dump:\n\tenv : {0}\n\thome : {1}\n\taws_config_dir : {2}\n\tencrypted_credentials_file : {3}
+    \tcredential_file : {4}'''.format(env, home, aws_config_dir, encrypted_credentials_file, credential_file))
 
     if not encrypted_credentials_file:
         log.error('''File with encrypted credentials for environment: {0} dont exists!.\n
                  Please encrypt your aws keys to file: \n{1}env.{0}.conf.asc'''.format(env, aws_config_dir))
 
-    gpg = gnupg.GPG(gnupghome='/home/{0}/.gnupg/'.format(user))
+    gpg = gnupg.GPG(gnupghome='{}/.gnupg/'.format(home))
     private_keys = gpg.list_keys(True)
     if not private_keys:
         log.error('No private key(s) found! Please check your GPG config')
