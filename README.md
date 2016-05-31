@@ -72,4 +72,11 @@ Script that can renew AWS API access keys.
 This script can renew API keys for three different environments: test, 
 qa and prod, or all of them.
 
-It expects encrypted credentials in `$HOME/.aws/env.$ENV.conf.asc`
+It expects encrypted credentials in `$HOME/.aws/env.$ENV.conf.asc` to be
+in "AWS credentials" format:
+```
+[default]
+aws_access_key_id = <ID>
+aws_secret_access_key = <KEY>
+```
+
