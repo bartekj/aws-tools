@@ -62,3 +62,14 @@ alias awsenv='__aws-env-update'
 Enter the passphrase to decrypt the env file: 
 [0.23] 12:23!desktop:~$
 ```
+
+aws-roll-keys
+-------------
+Script that can renew AWS API access keys.
+
+##### About
+
+This script can renew API keys for three different environments: test, 
+qa and prod, or all of them.
+
+It expects encrypted credentials in `$HOME/.aws/env.$ENV.conf.asc`
