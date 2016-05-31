@@ -88,7 +88,7 @@ def main():
         client.delete_access_key(AccessKeyId=current_key_id)
 
         print("Rolled key for env {}: AccessKeyId={}; CreateDate={}".format(
-            env, resp["AccessKey"]["AccessKeyId"], resp["AccessKey"]["CreateDate"]
+            env, "*" * 16 + resp["AccessKey"]["AccessKeyId"][-5:], resp["AccessKey"]["CreateDate"]
         ))
 
 
