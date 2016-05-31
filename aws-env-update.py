@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 import argparse
 import getpass
-import glob
 import logging as log
 import os
-import sys
 import re
 
 import gnupg
