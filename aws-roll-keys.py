@@ -61,7 +61,7 @@ def main():
     else:
         args.env = [args.env]
 
-    gpg = gnupg.GPG(gnupghome="{}/.gnupg/".format(home))
+    gpg = gnupg.GPG()
     phrase = getpass.getpass("Please enter passphrase for decrypting env files: ")
     for env in args.env:
         file_path = os.path.join(os.sep, aws_config_dir, "env.{0}.conf.asc".format(env))

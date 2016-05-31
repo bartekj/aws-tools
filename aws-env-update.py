@@ -48,7 +48,7 @@ def main():
         log.error('''File with encrypted credentials for environment: {0} dont exists!.\n
                  Please encrypt your aws keys to file: \n{1}env.{0}.conf.asc'''.format(env, aws_config_dir))
 
-    gpg = gnupg.GPG(gnupghome='{}/.gnupg/'.format(home))
+    gpg = gnupg.GPG()
     private_keys = gpg.list_keys(True)
     if not private_keys:
         log.error('No private key(s) found! Please check your GPG config')
