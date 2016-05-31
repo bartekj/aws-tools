@@ -5,6 +5,7 @@ import glob
 import logging as log
 import os
 import sys
+import re
 
 import gnupg
 
@@ -22,15 +23,17 @@ and save them in the ${HOME}/.aws/credentials file\
 Example usage:\n\n\tx1:~$ awsenv test \n'''),
                                     epilog="Copyright (C) 2016 Bart Jakubowski <bartekj@gmail.com>")
     parser.add_argument("-e", "--env", help="environment name", choices=['test', 'qa', 'prod'], required=True)
+    parser.add_argument("-x", "--export", action="store_true", help="Print eval-friendly output")
     parser.add_argument("-d", "--debug", action='store_true', help="Debug mode")
     parser.add_argument('-v', "--version", help="Print version", action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
     env = args.env
     debug = args.debug
-    return env, debug
+    export = args.export
+    return env, debug, export
 
 def main():
-    env, debug = get_args()
+    env, debug, export = get_args()
 
     if debug:
         log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
@@ -70,6 +73,13 @@ def main():
     else:
         log.error('Unknown error, use --debug to troubleshoot')
     stream.close()
+
+    if export and output.status == "decryption ok":
+        id = re.findall(r"{} = (.*)".format(aws_credentials_patterns[0]), str(output))[0]
+        key = re.findall(r"{} = (.*)".format(aws_credentials_patterns[1]), str(output))[0]
+        print("export AWS_ACCESS_KEY_ID='{}'".format(id))
+        print("export AWS_SECRET_ACCESS_KEY='{}'".format(key))
+
 
 if __name__ == "__main__":
     main()
