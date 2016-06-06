@@ -42,11 +42,15 @@ def get_current_key(env, file_path, gpg, phrase):
 
 
 def main():
+    available_envs = list(
+        map(lambda file: re.sub(r"env.(.*).conf.asc", r"\1", file),
+            filter(lambda file: file.startswith("env"),
+                   os.listdir(aws_config_dir))))
     parser = argparse.ArgumentParser(
         description="Rolls AWS IAM Access Keys for all or specified env(s)",
         epilog="Copyright (C) 2016 Karolis Labrencis <karolis@labrencis.lt>")
     parser.add_argument("-e", "--env", help="environment name", required=True,
-                        choices=["test", "qa", "prod", "all"])
+                        choices=available_envs + ["all"])
     parser.add_argument("-d", "--debug", action="store_true", help="Debug mode")
     parser.add_argument("-v", "--version", help="Print version", action="version",
                         version="%(prog)s 1.0")
@@ -57,7 +61,7 @@ def main():
         logging.info("Debug output.")
 
     if args.env == "all":
-        args.env = ["test", "qa", "prod"]
+        args.env = available_envs
     else:
         args.env = [args.env]
 
