@@ -61,20 +61,20 @@ def main():
     phrase = getpass.getpass("Enter the passphrase to decrypt the env file: ")
     output = gpg.decrypt_file(stream, passphrase=phrase)
     aws_credentials_patterns = ("aws_access_key_id", "aws_secret_access_key")
-    if output.status == 'decryption failed':
+    while output.status != 'decryption ok':
         log.error('Decryption failed, check your password')
-    elif output.status == 'decryption ok':
-        if any(x in str(output) for x in aws_credentials_patterns):
-            try:
-                os.remove(credential_file)
-            except OSError:
-                pass
-            with open(credential_file, 'w') as outfile:
-                outfile.write(str(output))
-        else:
-            log.error('No AWS credentials in the decrypted file!')
+        phrase = getpass.getpass("Enter the passphrase to decrypt the env file: ")
+        stream.seek(0)
+        output = gpg.decrypt_file(stream, passphrase=phrase)
+    if any(x in str(output) for x in aws_credentials_patterns):
+        try:
+            os.remove(credential_file)
+        except OSError:
+            pass
+        with open(credential_file, 'w') as outfile:
+            outfile.write(str(output))
     else:
-        log.error('Unknown error, use --debug to troubleshoot')
+        log.error('No AWS credentials in the decrypted file!')
     stream.close()
 
     if export and output.status == "decryption ok":
