@@ -4,8 +4,21 @@ import getpass
 import logging as log
 import os
 import re
+import sys
 
 import gnupg
+
+# HACK: monkey patch python-gnupg for gpg2 >= 2.1.3 support. This will
+# be part of 0.3.9 when it is released. See:
+# https://bitbucket.org/vinay.sajip/python-gnupg/commits/20b529201212
+old_handle_status = gnupg.Verify.handle_status
+def monkey_patched_handle_status(self, key, value):
+    if key in ('KEY_CONSIDERED'):
+        pass
+    else:
+        old_handle_status(self, key, value)
+gnupg.Verify.handle_status = monkey_patched_handle_status
+# END HACK
 
 debug = 0
 home = os.environ['HOME']
@@ -26,17 +39,22 @@ and save them in the ${HOME}/.aws/credentials file\
 Example usage:\n\n\tx1:~$ awsenv test \n'''),
                                     epilog="Copyright (C) 2016 Bart Jakubowski <bartekj@gmail.com>")
     parser.add_argument("-e", "--env", help="environment name", choices=available_envs, required=True)
+    parser.add_argument("-a", "--use-agent", action="store_true", help="Use GPG agent")
     parser.add_argument("-x", "--export", action="store_true", help="Print eval-friendly output")
+    parser.add_argument("--gpg-binary", help="GPG binary to use")
     parser.add_argument("-d", "--debug", action='store_true', help="Debug mode")
     parser.add_argument('-v', "--version", help="Print version", action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
-    env = args.env
-    debug = args.debug
-    export = args.export
-    return env, debug, export
+    return args.env, args.use_agent, args.export, args.gpg_binary, args.debug
+
+def get_passphrase(use_agent=False):
+    if use_agent:
+        return None
+    else:
+        return getpass.getpass("Enter the passphrase to decrypt the env file: ")
 
 def main():
-    env, debug, export = get_args()
+    env, use_agent, export, gpg_binary, debug = get_args()
 
     if debug:
         log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
@@ -53,19 +71,25 @@ def main():
         log.error('''File with encrypted credentials for environment: {0} dont exists!.\n
                  Please encrypt your aws keys to file: \n{1}env.{0}.conf.asc'''.format(env, aws_config_dir))
 
-    gpg = gnupg.GPG()
+    if gpg_binary is not None:
+        gpg = gnupg.GPG(use_agent=use_agent, gpgbinary=gpg_binary)
+    else:
+        gpg = gnupg.GPG(use_agent=use_agent)
     private_keys = gpg.list_keys(True)
     if not private_keys:
         log.error('No private key(s) found! Please check your GPG config')
     stream = open(encrypted_credentials_file, "rb")
-    phrase = getpass.getpass("Enter the passphrase to decrypt the env file: ")
-    output = gpg.decrypt_file(stream, passphrase=phrase)
+    output = gpg.decrypt_file(stream, passphrase=get_passphrase(use_agent))
+    if use_agent and output.status != 'decryption ok':
+        log.error('Decryption failed, please try again')
+        sys.exit(1)
+    else:
+        while output.status != 'decryption ok':
+            log.error('Decryption failed, check your password')
+            stream.seek(0)
+            output = gpg.decrypt_file(stream, passphrase=get_passphrase(use_agent))
+
     aws_credentials_patterns = ("aws_access_key_id", "aws_secret_access_key")
-    while output.status != 'decryption ok':
-        log.error('Decryption failed, check your password')
-        phrase = getpass.getpass("Enter the passphrase to decrypt the env file: ")
-        stream.seek(0)
-        output = gpg.decrypt_file(stream, passphrase=phrase)
     if any(x in str(output) for x in aws_credentials_patterns):
         try:
             os.remove(credential_file)
