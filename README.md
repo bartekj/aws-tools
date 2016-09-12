@@ -79,4 +79,14 @@ in "AWS credentials" format:
 aws_access_key_id = <ID>
 aws_secret_access_key = <KEY>
 ```
+##### Script requirements
+* Python libs
+  - boto3==1.4.0
+
+##### Usage
+
+```bash
+$ ./aws-roll-keys.py -e test
+Enter the passphrase to decrypt the env file: 
+Rolled key for env test: AccessKeyId=****************SWOUQ; CreateDate=2016-09-12 07:42:59.135000+00:00
 
