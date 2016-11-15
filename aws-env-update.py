@@ -8,18 +8,6 @@ import sys
 
 import gnupg
 
-# HACK: monkey patch python-gnupg for gpg2 >= 2.1.3 support. This will
-# be part of 0.3.9 when it is released. See:
-# https://bitbucket.org/vinay.sajip/python-gnupg/commits/20b529201212
-old_handle_status = gnupg.Verify.handle_status
-def monkey_patched_handle_status(self, key, value):
-    if key in ('KEY_CONSIDERED'):
-        pass
-    else:
-        old_handle_status(self, key, value)
-gnupg.Verify.handle_status = monkey_patched_handle_status
-# END HACK
-
 debug = 0
 home = os.environ['HOME']
 aws_config_dir = '{}/.aws/'.format(home)
