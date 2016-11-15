@@ -29,7 +29,7 @@ def get_current_key(env, file_path, gpg, phrase):
     try:
         with open(file_path) as file:
             decrypted = gpg.decrypt_file(file, passphrase=phrase)
-            if decrypted.status == "decryption failed":
+            if decrypted.status != "decryption ok":
                 logging.error("Unable to decrypt {}".format(file_path))
                 return [None, None]
 
@@ -40,6 +40,11 @@ def get_current_key(env, file_path, gpg, phrase):
 
     return [id, key]
 
+def get_passphrase(use_agent=False):
+    if use_agent:
+        return None
+    else:
+        return getpass.getpass("Please enter passphrase for decrypting env files: ")
 
 def main():
     available_envs = list(
@@ -51,6 +56,8 @@ def main():
         epilog="Copyright (C) 2016 Karolis Labrencis <karolis@labrencis.lt>")
     parser.add_argument("-e", "--env", help="environment name", required=True,
                         choices=available_envs + ["all"])
+    parser.add_argument("-a", "--use-agent", action="store_true", help="Use GPG agent")
+    parser.add_argument("--gpg-binary", help="GPG binary to use")
     parser.add_argument("-d", "--debug", action="store_true", help="Debug mode")
     parser.add_argument("-v", "--version", help="Print version", action="version",
                         version="%(prog)s 1.0")
@@ -65,8 +72,11 @@ def main():
     else:
         args.env = [args.env]
 
-    gpg = gnupg.GPG()
-    phrase = getpass.getpass("Please enter passphrase for decrypting env files: ")
+    if args.gpg_binary is not None:
+        gpg = gnupg.GPG(use_agent=args.use_agent, gpgbinary=args.gpg_binary)
+    else:
+        gpg = gnupg.GPG(use_agent=args.use_agent)
+    phrase = get_passphrase(args.use_agent)
     for env in args.env:
         file_path = os.path.join(os.sep, aws_config_dir, "env.{0}.conf.asc".format(env))
         key_id, access_key = get_current_key(env, file_path, gpg, phrase)
