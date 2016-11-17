@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import argparse
 import os
 import re
@@ -6,6 +7,11 @@ import gnupg
 import logging
 import getpass
 import boto3
+import sys
+import smtplib
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+
 
 KEY_ID = "aws_access_key_id"
 ACCESS_KEY = "aws_secret_access_key"
@@ -56,6 +62,8 @@ def main():
         epilog="Copyright (C) 2016 Karolis Labrencis <karolis@labrencis.lt>")
     parser.add_argument("-e", "--env", help="environment name", required=True,
                         choices=available_envs + ["all"])
+    parser.add_argument("-s", "--send", action="store_true",
+                        help="Send an email with new keys")
     parser.add_argument("-a", "--use-agent", action="store_true", help="Use GPG agent")
     parser.add_argument("--gpg-binary", help="GPG binary to use")
     parser.add_argument("-d", "--debug", action="store_true", help="Debug mode")
@@ -77,6 +85,10 @@ def main():
     else:
         gpg = gnupg.GPG(use_agent=args.use_agent)
     phrase = get_passphrase(args.use_agent)
+
+    msg = MIMEMultipart()
+    envs = ""
+
     for env in args.env:
         file_path = os.path.join(os.sep, aws_config_dir, "env.{0}.conf.asc".format(env))
         key_id, access_key = get_current_key(env, file_path, gpg, phrase)
@@ -96,6 +108,7 @@ def main():
 
         private_key = gpg.list_keys(True)
         encrypted = gpg.encrypt(contents, private_key[0]["uids"][0])
+
         with open(file_path, "w") as out:
             out.write(str(encrypted))
 
@@ -105,6 +118,46 @@ def main():
             env, "*" * 16 + resp["AccessKey"]["AccessKeyId"][-5:], resp["AccessKey"]["CreateDate"]
         ))
 
+        if args.send:
+            with open(file_path, "rb") as attach:
+                part = MIMEApplication(attach.read(), Name="env.{0}.conf.asc".format(env))
+                part["Content-Disposition"] = 'attachment; filename="%s"' % "env.{0}.conf.asc".format(env)
+                msg.attach(part)
+                envs += " {0}".format(env)
+
+    vars = dict()
+
+    if args.send:
+        smtpconf = os.path.dirname(__file__) + "/smtp.cfg"
+        msg["Subject"] = "AWS keys: " + envs
+
+        try:
+            f = open(smtpconf)
+        except:
+            print >>sys.stderr, "Can't open " + smtpconf
+            sys.exit(1)
+        else:
+            for line in f:
+                eq_idx = line.find('=')
+                col = line[:eq_idx].strip()
+                val = line[eq_idx +1:].strip()
+                vars[col] = val
+
+        try:
+            vars["smtplogin"]
+            vars["smtppass"]
+            vars["smtphost"]
+            vars["smtpport"]
+            vars["headerfrom"]
+            vars["headerto"]
+            server = smtplib.SMTP(vars["smtphost"], vars["smtpport"])
+            server.ehlo()
+            server.login(vars["smtplogin"], vars["smtppass"])
+            server.sendmail(vars["headerfrom"], vars["headerto"], msg.as_string())
+            print "Email sent"
+        except Exception as exc:
+            print >>sys.stderr, "Can't send email: %s" % exc
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

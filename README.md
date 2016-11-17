@@ -17,12 +17,12 @@ Exporting variables running python is not that simple, so this script is decrypt
 ##### Script requirements
 * Python libs
   - argparse==1.2.1
-  - python-gnupg==0.3.8
+  - python-gnupg==0.3.9
 
 
 
 * GnuPG trusted key
-At the moment script will work when only one key is added to gpg. 
+At the moment script will work when only one key is added to gpg.
 ```bash
 [0.23] 12:23!desktop:~$ gpg --list-secret-keys
 /home/user/.gnupg/secring.gpg
@@ -31,16 +31,16 @@ pub   4096R/68ED51D1 2016-03-30
 uid                  Bartlomiej Jakubowski (natur) <bart@jakubowski.in>
 sub   4096R/CEB0FE21 2016-03-30
 ```
-* Encrypted credentials 
+* Encrypted credentials
 Put or create files with access credentials and encrypt them with gpg.
 ```bash
 [0.23] 12:23!desktop:~/.aws $ gpg --encrypt --armor --output env.prod.conf.asc -r 'bart@jakubowski.in' env.prod.conf
 ...
 [0.23] 12:23!desktop:~$ tree .aws
-     ~/.aws/                   
+     ~/.aws/
        ├── credentials
-       ├── env.prod.conf.asc           
-       ├── env.qa.conf.asc       
+       ├── env.prod.conf.asc
+       ├── env.qa.conf.asc
        └── env.test.conf.asc
 ```
 Put or create files with access credentials and encrypt them with gpg.
@@ -59,7 +59,7 @@ alias awsenv='__aws-env-update'
 
 ```bash
 [0.23] 12:23!desktop:~$ awsenv qa
-Enter the passphrase to decrypt the env file: 
+Enter the passphrase to decrypt the env file:
 [0.23] 12:23!desktop:~$
 ```
 
@@ -69,7 +69,7 @@ Script that can renew AWS API access keys.
 
 ##### About
 
-This script can renew API keys for three different environments: test, 
+This script can renew API keys for three different environments: test,
 qa and prod, or all of them.
 
 It expects encrypted credentials in `$HOME/.aws/env.$ENV.conf.asc` to be
@@ -83,10 +83,35 @@ aws_secret_access_key = <KEY>
 * Python libs
   - boto3==1.4.0
 
+##### Sending email with rolled keys
+
+Rolling your keys, you can send them via email, to use on the other computer
+
+Create SMTP config file (`smtp.cfg`) in the same directory as scripts:
+
+```
+smtplogin = <smtp_login>
+smtppass = <smtp_password>
+smtphost = <smtp_host>
+smtpport = <smtp_port>
+headerfrom = <from>
+headerto = <to>
+```
+
+Change permissions:
+
+```bash
+chmod 600 smtp.cfg
+```
+
+During rotation simply add `-s`
+```bash
+aws-roll-keys.py -e all -s
+```
+
 ##### Usage
 
 ```bash
 $ ./aws-roll-keys.py -e test
-Enter the passphrase to decrypt the env file: 
+Enter the passphrase to decrypt the env file:
 Rolled key for env test: AccessKeyId=****************SWOUQ; CreateDate=2016-09-12 07:42:59.135000+00:00
-
