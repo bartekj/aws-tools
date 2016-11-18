@@ -7,7 +7,6 @@ import gnupg
 import logging
 import getpass
 import boto3
-import sys
 import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
@@ -45,6 +44,30 @@ def get_current_key(env, file_path, gpg, phrase):
         logging.warning("File for env {} not found. Skipping.".format(env))
 
     return [id, key]
+
+def get_smtp_conf(smtpconf, gpg, phrase):
+    private_keys = gpg.list_keys(True)
+    LOGIN, PASS, HOST, PORT, FROM, TO = [None, None, None, None, None, None]
+    if not private_keys:
+        logging.error("No private key(s) found! Please check your GPG config")
+        return [None, None, None, None, None, None]
+    try:
+        with open(smtpconf) as file:
+            decrypted = gpg.decrypt_file(file, passphrase=phrase)
+            if decrypted.status != "decryption ok":
+                logging.error("Unable to decrypt {}".format(smtpconf))
+                return [None, None, None, None, None, None]
+
+            LOGIN = re.findall(r"{} = (.*)".format("smtplogin"), str(decrypted))[0]
+            PASS = re.findall(r"{} = (.*)".format("smtppass"), str(decrypted))[0]
+            HOST = re.findall(r"{} = (.*)".format("smtphost"), str(decrypted))[0]
+            PORT = re.findall(r"{} = (.*)".format("smtpport"), str(decrypted))[0]
+            FROM = re.findall(r"{} = (.*)".format("headerfrom"), str(decrypted))[0]
+            TO = re.findall(r"{} = (.*)".format("headerto"), str(decrypted))[0]
+    except IOError:
+        logging.warning("Can't open {0} file".format(smtpconf))
+
+    return [LOGIN, PASS, HOST, PORT, FROM, TO]
 
 def get_passphrase(use_agent=False):
     if use_agent:
@@ -128,36 +151,18 @@ def main():
     vars = dict()
 
     if args.send:
-        smtpconf = os.path.dirname(__file__) + "/smtp.cfg"
+        smtpconf = os.path.dirname(__file__) + "/smtp.cfg.asc"
+        LOGIN, PASS, HOST, PORT, FROM, TO = get_smtp_conf(smtpconf, gpg, phrase)
         msg["Subject"] = "AWS keys: " + envs
 
         try:
-            f = open(smtpconf)
-        except:
-            print >>sys.stderr, "Can't open " + smtpconf
-            sys.exit(1)
-        else:
-            for line in f:
-                eq_idx = line.find('=')
-                col = line[:eq_idx].strip()
-                val = line[eq_idx +1:].strip()
-                vars[col] = val
-
-        try:
-            vars["smtplogin"]
-            vars["smtppass"]
-            vars["smtphost"]
-            vars["smtpport"]
-            vars["headerfrom"]
-            vars["headerto"]
-            server = smtplib.SMTP(vars["smtphost"], vars["smtpport"])
+            server = smtplib.SMTP(HOST, PORT)
             server.ehlo()
-            server.login(vars["smtplogin"], vars["smtppass"])
-            server.sendmail(vars["headerfrom"], vars["headerto"], msg.as_string())
-            print "Email sent"
+            server.login(LOGIN, PASS)
+            server.sendmail(FROM, TO, msg.as_string())
+            print "Key(s) sent to %s" % TO
         except Exception as exc:
-            print >>sys.stderr, "Can't send email: %s" % exc
-            sys.exit(1)
+            logging.warning("Can't send email: {0}".format(smtpconf))
 
 if __name__ == "__main__":
     main()

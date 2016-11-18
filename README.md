@@ -87,7 +87,7 @@ aws_secret_access_key = <KEY>
 
 Rolling your keys, you can send them via email, to use on the other computer
 
-Create SMTP config file (`smtp.cfg`) in the same directory as scripts:
+Create temporary SMTP config file:
 
 ```
 smtplogin = <smtp_login>
@@ -98,11 +98,7 @@ headerfrom = <from>
 headerto = <to>
 ```
 
-Change permissions:
-
-```bash
-chmod 600 smtp.cfg
-```
+encrypt it in the same way as env.X.conf and remove temporary file.
 
 During rotation simply add `-s`
 ```bash
@@ -115,3 +111,10 @@ aws-roll-keys.py -e all -s
 $ ./aws-roll-keys.py -e test
 Enter the passphrase to decrypt the env file:
 Rolled key for env test: AccessKeyId=****************SWOUQ; CreateDate=2016-09-12 07:42:59.135000+00:00
+```
+
+or create alias:
+
+```bash
+alias awsroll='aws-roll-keys.py -a -s -e all'
+```
