@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import argparse
 import os
 import re
@@ -6,6 +7,10 @@ import gnupg
 import logging
 import getpass
 import boto3
+import smtplib
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+
 
 KEY_ID = "aws_access_key_id"
 ACCESS_KEY = "aws_secret_access_key"
@@ -40,6 +45,30 @@ def get_current_key(env, file_path, gpg, phrase):
 
     return [id, key]
 
+def get_smtp_conf(smtpconf, gpg, phrase):
+    private_keys = gpg.list_keys(True)
+    LOGIN, PASS, HOST, PORT, FROM, TO = [None, None, None, None, None, None]
+    if not private_keys:
+        logging.error("No private key(s) found! Please check your GPG config")
+        return [None, None, None, None, None, None]
+    try:
+        with open(smtpconf) as file:
+            decrypted = gpg.decrypt_file(file, passphrase=phrase)
+            if decrypted.status != "decryption ok":
+                logging.error("Unable to decrypt {}".format(smtpconf))
+                return [None, None, None, None, None, None]
+
+            LOGIN = re.findall(r"{} = (.*)".format("smtplogin"), str(decrypted))[0]
+            PASS = re.findall(r"{} = (.*)".format("smtppass"), str(decrypted))[0]
+            HOST = re.findall(r"{} = (.*)".format("smtphost"), str(decrypted))[0]
+            PORT = re.findall(r"{} = (.*)".format("smtpport"), str(decrypted))[0]
+            FROM = re.findall(r"{} = (.*)".format("headerfrom"), str(decrypted))[0]
+            TO = re.findall(r"{} = (.*)".format("headerto"), str(decrypted))[0]
+    except IOError:
+        logging.warning("Can't open {0} file".format(smtpconf))
+
+    return [LOGIN, PASS, HOST, PORT, FROM, TO]
+
 def get_passphrase(use_agent=False):
     if use_agent:
         return None
@@ -56,6 +85,8 @@ def main():
         epilog="Copyright (C) 2016 Karolis Labrencis <karolis@labrencis.lt>")
     parser.add_argument("-e", "--env", help="environment name", required=True,
                         choices=available_envs + ["all"])
+    parser.add_argument("-s", "--send", action="store_true",
+                        help="Send an email with new keys")
     parser.add_argument("-a", "--use-agent", action="store_true", help="Use GPG agent")
     parser.add_argument("--gpg-binary", help="GPG binary to use")
     parser.add_argument("-d", "--debug", action="store_true", help="Debug mode")
@@ -77,6 +108,10 @@ def main():
     else:
         gpg = gnupg.GPG(use_agent=args.use_agent)
     phrase = get_passphrase(args.use_agent)
+
+    msg = MIMEMultipart()
+    envs = ""
+
     for env in args.env:
         file_path = os.path.join(os.sep, aws_config_dir, "env.{0}.conf.asc".format(env))
         key_id, access_key = get_current_key(env, file_path, gpg, phrase)
@@ -96,6 +131,7 @@ def main():
 
         private_key = gpg.list_keys(True)
         encrypted = gpg.encrypt(contents, private_key[0]["uids"][0])
+
         with open(file_path, "w") as out:
             out.write(str(encrypted))
 
@@ -105,6 +141,28 @@ def main():
             env, "*" * 16 + resp["AccessKey"]["AccessKeyId"][-5:], resp["AccessKey"]["CreateDate"]
         ))
 
+        if args.send:
+            with open(file_path, "rb") as attach:
+                part = MIMEApplication(attach.read(), Name="env.{0}.conf.asc".format(env))
+                part["Content-Disposition"] = 'attachment; filename="%s"' % "env.{0}.conf.asc".format(env)
+                msg.attach(part)
+                envs += " {0}".format(env)
+
+    vars = dict()
+
+    if args.send:
+        smtpconf = os.path.dirname(__file__) + "/smtp.cfg.asc"
+        LOGIN, PASS, HOST, PORT, FROM, TO = get_smtp_conf(smtpconf, gpg, phrase)
+        msg["Subject"] = "AWS keys: " + envs
+
+        try:
+            server = smtplib.SMTP(HOST, PORT)
+            server.ehlo()
+            server.login(LOGIN, PASS)
+            server.sendmail(FROM, TO, msg.as_string())
+            print "Key(s) sent to %s" % TO
+        except Exception as exc:
+            logging.warning("Can't send email: {0}".format(smtpconf))
 
 if __name__ == "__main__":
     main()
