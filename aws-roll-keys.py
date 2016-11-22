@@ -10,7 +10,8 @@ import boto3
 import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
-
+from email.mime.text import MIMEText
+from datetime import *
 
 KEY_ID = "aws_access_key_id"
 ACCESS_KEY = "aws_secret_access_key"
@@ -110,6 +111,7 @@ def main():
     phrase = get_passphrase(args.use_agent)
 
     msg = MIMEMultipart()
+    msg_content = []
     envs = ""
 
     for env in args.env:
@@ -137,24 +139,24 @@ def main():
 
         client.delete_access_key(AccessKeyId=current_key_id)
 
-        print("Rolled key for env {}: AccessKeyId={}; CreateDate={}".format(
-            env, "*" * 16 + resp["AccessKey"]["AccessKeyId"][-5:], resp["AccessKey"]["CreateDate"]
-        ))
+        message = ("Rolled key for env {}: AccessKeyId={}; CreateDate={}".format(
+            env, "*" * 16 + resp["AccessKey"]["AccessKeyId"][-5:], resp["AccessKey"]["CreateDate"]))
+
+        print "{0}".format(message)
 
         if args.send:
-            with open(file_path, "rb") as attach:
-                part = MIMEApplication(attach.read(), Name="env.{0}.conf.asc".format(env))
-                part["Content-Disposition"] = 'attachment; filename="%s"' % "env.{0}.conf.asc".format(env)
-                msg.attach(part)
-                envs += " {0}".format(env)
+            msg_content.append(message)
 
     vars = dict()
 
     if args.send:
         smtpconf = os.path.dirname(__file__) + "/smtp.cfg.asc"
         LOGIN, PASS, HOST, PORT, FROM, TO = get_smtp_conf(smtpconf, gpg, phrase)
-        msg["Subject"] = "AWS keys: " + envs
-
+        today = datetime.today()
+        week_nr = today.strftime("%U")
+        msg["Subject"] = "AWS Key rolling (week {0})".format(week_nr)
+        msg_content.insert(0, "Hi,\njust rolled my keys for envs:\n")
+        msg.attach(MIMEText("\n".join(msg_content), 'plain'))
         try:
             server = smtplib.SMTP(HOST, PORT)
             server.ehlo()
