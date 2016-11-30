@@ -6,7 +6,7 @@ aws-env-update
 --------------
 Script that helps you switch between multiple AWS accounts in a secure way.
 
-##### About
+### About
 The AWS CLI uses a provider chain to look for AWS credentials in a number of different places, including system or user environment variables and local AWS configuration files.
 
 Exporting variables running python is not that simple, so this script is decrypting AWS credentials to :
@@ -14,7 +14,7 @@ Exporting variables running python is not that simple, so this script is decrypt
  ~/.aws/credentials
  ```
 
-##### Script requirements
+### Script requirements
 * Python libs
   - argparse==1.2.1
   - python-gnupg==0.3.9
@@ -55,7 +55,7 @@ function __aws-env-update() {
 alias awsenv='__aws-env-update'
 ...
 ```
-##### Usage
+### Usage
 
 ```bash
 [0.23] 12:23!desktop:~$ awsenv qa
@@ -67,7 +67,7 @@ aws-roll-keys
 -------------
 Script that can renew AWS API access keys.
 
-##### About
+### About
 
 This script can renew API keys for three different environments: test,
 qa and prod, or all of them.
@@ -79,33 +79,39 @@ in "AWS credentials" format:
 aws_access_key_id = <ID>
 aws_secret_access_key = <KEY>
 ```
-##### Script requirements
+### Script requirements
 * Python libs
   - boto3==1.4.0
 
-##### Sending email with rolled keys
+### SMTP options (-s and -i)
+##### Create smtp configuration file
+In the same directory as `aws-roll.keys.py`.
 
-Rolling your keys, you can send them via email, to use on the other computer
+smtp.cfg (temporary file):
 
-Create temporary SMTP config file:
+    smtplogin = full_smtp_login
+    smtppass = password
+    smtphost = smtp_host
+    smtpport = smtp_port
 
-```
-smtplogin = <smtp_login>
-smtppass = <smtp_password>
-smtphost = <smtp_host>
-smtpport = <smtp_port>
-headerfrom = <from>
-headerto = <to>
-```
+Ecrypt it:
 
-encrypt it in the same way as env.X.conf and remove temporary file.
+    gpg --encrypt --armor --output smtp.cfg.asc -r <your-gpg-user-id-name> smtp.cfg
 
-During rotation simply add `-s`
-```bash
-aws-roll-keys.py -e all -s
-```
+And remove temporary file
 
-##### Usage
+##### Sending email with rolled keys (-s)
+In case you need to use rolled keys on the other computer, you can send them via email, as attachments. Just add `-s youremail@domain.com`.
+
+    aws-roll-keys.py -e all -s youremail@domain.com
+
+##### Sending confirmation that keys have been changed (-i)
+In case you need to send confirmation (without keys) about rotating to the others, add `-i email@domain.com`.
+
+    aws-roll-keys.py -e all -i email@domain.com
+
+
+### Usage
 
 ```bash
 $ ./aws-roll-keys.py -e test
@@ -115,6 +121,6 @@ Rolled key for env test: AccessKeyId=****************SWOUQ; CreateDate=2016-09-1
 
 or create alias:
 
-```bash
-alias awsroll='aws-roll-keys.py -a -s -e all'
-```
+    alias awsroll='aws-roll-keys.py -a -e all -s youremail@domain.com -i email@domain.com'
+
+If you want to keep rotation fully automated, you may be tempted to add it into cron;)
