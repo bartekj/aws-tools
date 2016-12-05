@@ -84,6 +84,7 @@ def send(srv, replyto, data):
     try:
         server = smtplib.SMTP(srv[2], srv[3])
         server.ehlo()
+        server.starttls()
         server.login(srv[0], srv[1])
         server.sendmail(srv[0], replyto, data)
         print "Sent to {0}".format(replyto)
