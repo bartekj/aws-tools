@@ -80,13 +80,18 @@ def get_smtp_conf(smtpconf, gpg, phrase):
 
     return [LOGIN, PASS, HOST, PORT]
 
-def send(srv, replyto, data):
+def send(srv, sendto, data):
     try:
         server = smtplib.SMTP(srv[2], srv[3])
+        server.set_debuglevel(False)
         server.ehlo()
+        if server.has_extn('STARTTLS'):
+            server.starttls()
+            server.ehlo()
         server.login(srv[0], srv[1])
-        server.sendmail(srv[0], replyto, data)
-        print "Sent to {0}".format(replyto)
+        server.sendmail(srv[0], sendto, data)
+        server.quit()
+        print "Sent to {0}".format(sendto)
     except Exception as exc:
         logging.error("Can't send email: {0}".format(exc))
         sys.exit(1)
@@ -178,11 +183,13 @@ def main():
         srv = get_smtp_conf(smtpconf, gpg, phrase)
 
     if args.sendkeysto:
+        msgkeys["To"] = args.sendkeysto
         msgkeys["Subject"] = "AWS keys: {}".format(envs)
 
         send(srv, args.sendkeysto, msgkeys.as_string())
 
     if args.sendinfoto:
+        msginfo["To"] = args.sendinfoto
         msginfo["Subject"] = "AWS weekly key(s) rotation: {0}-{1}".format(
             today.strftime("%Y%m%d"), future.strftime("%Y%m%d"))
         part2 = MIMEText(msgbody, "text")
