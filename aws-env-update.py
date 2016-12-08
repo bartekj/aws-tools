@@ -5,7 +5,7 @@ import logging as log
 import os
 import re
 import sys
-import notify2
+#import notify2
 
 
 
@@ -34,9 +34,10 @@ Example usage:\n\n\tx1:~$ awsenv test \n'''),
     parser.add_argument("-x", "--export", action="store_true", help="Print eval-friendly output")
     parser.add_argument("--gpg-binary", help="GPG binary to use")
     parser.add_argument("-d", "--debug", action='store_true', help="Debug mode")
+    parser.add_argument('-n', '--notify', help="Send DBus notification", action="store_true", )
     parser.add_argument('-v', "--version", help="Print version", action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
-    return args.env, args.use_agent, args.export, args.gpg_binary, args.debug
+    return args.env, args.use_agent, args.export, args.gpg_binary, args.debug, args.notify
 
 def get_passphrase(use_agent=False):
     if use_agent:
@@ -45,16 +46,20 @@ def get_passphrase(use_agent=False):
         return getpass.getpass("Enter the passphrase to decrypt the env file: ")
 
 
-def dbus_notify(env):
-    notify2.init('AWS ENV Changer')
-    n = notify2.Notification("Current AWS Environment: ",
+def dbus_notify(env, notify=False):
+    if notify:
+        import notify2
+        notify2.init('AWS ENV Changer')
+        n = notify2.Notification("Current AWS Environment: ",
                              env,
                              "notification-message-im"  # Icon name
                              )
-    n.show()
+        n.show()
+    else:
+        pass
 
 def main():
-    env, use_agent, export, gpg_binary, debug = get_args()
+    env, use_agent, export, gpg_binary, debug, notify = get_args()
 
     if debug:
         log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
@@ -99,7 +104,7 @@ def main():
 
         env_file = open(aws_config_dir + '.env', 'w')
         env_file.write(env)
-        dbus_notify(env)
+        dbus_notify(env, notify)
 
     else:
         log.error('No AWS credentials in the decrypted file!')
