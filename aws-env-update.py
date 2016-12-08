@@ -5,6 +5,9 @@ import logging as log
 import os
 import re
 import sys
+import notify2
+
+
 
 import gnupg
 
@@ -41,6 +44,15 @@ def get_passphrase(use_agent=False):
     else:
         return getpass.getpass("Enter the passphrase to decrypt the env file: ")
 
+
+def dbus_notify(env):
+    notify2.init('AWS ENV Changer')
+    n = notify2.Notification("Current AWS Environment: ",
+                             env,
+                             "notification-message-im"  # Icon name
+                             )
+    n.show()
+
 def main():
     env, use_agent, export, gpg_binary, debug = get_args()
 
@@ -51,7 +63,6 @@ def main():
         log.basicConfig(format="%(levelname)s: %(message)s")
 
     encrypted_credentials_file = os.path.join(os.sep, aws_config_dir, 'env.{0}.conf.asc'.format(env))
-
     log.info('''Variables dump:\n\tenv : {0}\n\thome : {1}\n\taws_config_dir : {2}\n\tencrypted_credentials_file : {3}
     \tcredential_file : {4}'''.format(env, home, aws_config_dir, encrypted_credentials_file, credential_file))
 
@@ -85,6 +96,11 @@ def main():
             pass
         with open(credential_file, 'w') as outfile:
             outfile.write(str(output))
+
+        env_file = open(aws_config_dir + '.env', 'w')
+        env_file.write(env)
+        dbus_notify(env)
+
     else:
         log.error('No AWS credentials in the decrypted file!')
     stream.close()
