@@ -22,6 +22,7 @@ Exporting variables running python is not that simple, so this script is decrypt
 
 
 * GnuPG trusted key
+
 At the moment script will work when only one key is added to gpg.
 ```bash
 [0.23] 12:23!desktop:~$ gpg --list-secret-keys
@@ -32,6 +33,7 @@ uid                  Bartlomiej Jakubowski (natur) <bart@jakubowski.in>
 sub   4096R/CEB0FE21 2016-03-30
 ```
 * Encrypted credentials
+
 Put or create files with access credentials and encrypt them with gpg.
 ```bash
 [0.23] 12:23!desktop:~/.aws $ gpg --encrypt --armor --output env.prod.conf.asc -r 'bart@jakubowski.in' env.prod.conf
@@ -46,15 +48,26 @@ Put or create files with access credentials and encrypt them with gpg.
 Put or create files with access credentials and encrypt them with gpg.
 
 * Bash alias
+
 This alias is passing all arguments using a combination of function alias and eval
+
 ```bash
-...
 function __aws-env-update() {
     eval "$(python ~/bin/aws-env-update.py -e $@)"
 }
 alias awsenv='__aws-env-update'
-...
 ```
+
+* Displaying current environment in the console
+
+```bash
+function __awsenv_ps1() {
+    ps=$(cat $HOME/.aws/.env 2>/dev/null)
+    test -n "$ps" && echo "<$ps>"
+}
+export PS1='\[\e[1;38;5;39m\]$(__git_ps1 "(%s) " 2>/dev/null)$(__awsenv_ps1)\[\e[1;38;5;40m\][ \t ] \[\e[1;38;5;099m\]\H:\[\e[1;38;5;40m\]\w\[\e[1;38;5;099m\]\$ \[\e[0m\]'
+```
+
 ### Usage
 
 ```bash
