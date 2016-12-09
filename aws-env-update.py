@@ -5,7 +5,7 @@ import logging as log
 import os
 import re
 import sys
-#import notify2
+import notify2
 
 
 
