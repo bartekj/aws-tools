@@ -53,7 +53,7 @@ This alias is passing all arguments using a combination of function alias and ev
 
 ```bash
 function __aws-env-update() {
-    eval "$(python ~/bin/aws-env-update.py -e $@)"
+    eval "$(python ~/bin/aws-env-update.py -a -e $@)"
 }
 alias awsenv='__aws-env-update'
 ```
@@ -71,9 +71,11 @@ export PS1='\[\e[1;38;5;39m\]$(__git_ps1 "(%s) " 2>/dev/null)$(__awsenv_ps1)\[\e
 ### Usage
 
 ```bash
-[0.23] 12:23!desktop:~$ awsenv qa
+<test>[ 09:58:19 ] desktop:~$ awsenv qa
 Enter the passphrase to decrypt the env file:
-[0.23] 12:23!desktop:~$
+<qa>[ 09:58:38 ] desktop:~$ awsenv prod
+<prod>[ 09:58:46 ] desktop:~$ awsenv test
+<test>[ 09:59:06 ] desktop:~$
 ```
 
 aws-roll-keys
