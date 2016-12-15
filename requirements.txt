@@ -1,6 +1,7 @@
 # aws-env-update
 argparse==1.2.1
 python-gnupg==0.3.9
+notify2==0.3
 
 # aws-roll-keys
 boto3
