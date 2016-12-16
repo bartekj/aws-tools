@@ -16,8 +16,8 @@ setup(
     packages=find_packages('.', exclude=['tests*', 'docs*']),
     install_requires=[
         'argparse',
-        'boto3'
-        'python-gnupg>=0.3.9'
+        'boto3',
+        'python-gnupg>=0.3.9',
     ],
     classifiers=(
         'Development Status :: 5 - Production/Stable',

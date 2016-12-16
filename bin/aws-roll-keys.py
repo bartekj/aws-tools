@@ -133,7 +133,6 @@ def main():
     phrase = get_passphrase(args.use_agent)
 
     msgkeys = MIMEMultipart()
-    msginfo = MIMEMultipart("alternative")
     envs = ""
     msgbody = ""
 
@@ -184,16 +183,17 @@ def main():
 
     if args.sendkeysto:
         msgkeys["To"] = args.sendkeysto
+        msgkeys["From"] = srv[0]
         msgkeys["Subject"] = "AWS keys: {}".format(envs)
 
         send(srv, args.sendkeysto, msgkeys.as_string())
 
     if args.sendinfoto:
+        msginfo = MIMEText(msgbody, "plain", "utf-8")
         msginfo["To"] = args.sendinfoto
+        msginfo["From"] = srv[0]
         msginfo["Subject"] = "AWS weekly key(s) rotation: {0}-{1}".format(
             today.strftime("%Y%m%d"), future.strftime("%Y%m%d"))
-        part2 = MIMEText(msgbody, "text")
-        msginfo.attach(part2)
 
         send(srv, args.sendinfoto, msginfo.as_string())
 
