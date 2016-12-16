@@ -22,6 +22,7 @@ Exporting variables running python is not that simple, so this script is decrypt
 
 
 * GnuPG trusted key
+
 At the moment script will work when only one key is added to gpg.
 ```bash
 [0.23] 12:23!desktop:~$ gpg --list-secret-keys
@@ -32,6 +33,7 @@ uid                  Bartlomiej Jakubowski (natur) <bart@jakubowski.in>
 sub   4096R/CEB0FE21 2016-03-30
 ```
 * Encrypted credentials
+
 Put or create files with access credentials and encrypt them with gpg.
 ```bash
 [0.23] 12:23!desktop:~/.aws $ gpg --encrypt --armor --output env.prod.conf.asc -r 'bart@jakubowski.in' env.prod.conf
@@ -46,21 +48,50 @@ Put or create files with access credentials and encrypt them with gpg.
 Put or create files with access credentials and encrypt them with gpg.
 
 * Bash alias
-This alias is passing all arguments using a combination of function alias and eval
+
+exporting credentials as bash variables:
+
 ```bash
-...
 function __aws-env-update() {
-    eval "$(python ~/bin/aws-env-update.py -e $@)"
+    eval "$(aws-env-update.py -x -a -e $@)"
 }
-alias awsenv='__aws-env-update'
-...
 ```
+
+writing credentials to ~/.aws/credentials:
+
+```bash
+function __aws-env-update() {
+    eval "$(aws-env-update.py -a -e $@)"
+}
+```
+
+```bash
+alias awsenv='__aws-env-update'
+```
+
+* Displaying current environment in the console
+
+```bash
+function __awsenv_ps1() {
+    if [ -e "$HOME/.aws/credentials" ]; then
+        ps=$(cat $HOME/.aws/.env 2>/dev/null)
+    fi
+    if [ -n "$AWS_ENV" ]; then
+        ps="$AWS_ENV"
+    fi
+    echo "<$ps>"
+}
+export PS1='\[\e[1;38;5;39m\]$(__git_ps1 "(%s) " 2>/dev/null)$(__awsenv_ps1)\[\e[1;38;5;40m\][ \t ] \[\e[1;38;5;099m\]\H:\[\e[1;38;5;40m\]\w\[\e[1;38;5;099m\]\$ \[\e[0m\]'
+```
+
 ### Usage
 
 ```bash
-[0.23] 12:23!desktop:~$ awsenv qa
+<>[ 09:58:19 ] desktop:~$ awsenv qa
 Enter the passphrase to decrypt the env file:
-[0.23] 12:23!desktop:~$
+<qa>[ 09:58:38 ] desktop:~$ awsenv prod
+<prod>[ 09:58:46 ] desktop:~$ awsenv test
+<test>[ 09:59:06 ] desktop:~$
 ```
 
 aws-roll-keys
