@@ -2,8 +2,9 @@ aws-tools
 =========
 
 This package provides scripts for:
-- switching between multiple AWS accounts
-- renewing AWS API access keys
+
+* switching between multiple AWS accounts
+* renewing AWS API access keys
 
 ------------
 Installation
