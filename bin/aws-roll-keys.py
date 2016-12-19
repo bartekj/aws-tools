@@ -178,7 +178,7 @@ def main():
     vars = dict()
 
     if args.sendkeysto or args.sendinfoto:
-        smtpconf = os.path.dirname(__file__) + "/smtp.cfg.asc"
+        smtpconf = "{}/smtp.cfg.asc".format(aws_config_dir)
         srv = get_smtp_conf(smtpconf, gpg, phrase)
 
     if args.sendkeysto:
