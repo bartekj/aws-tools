@@ -1,3 +1,7 @@
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
 function __aws_env_update() {
     eval $(aws-env-update.py $@)
 }

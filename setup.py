@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='aws-tools',
-    version='1.0',
+    version='1.0.2',
     description='Switching between multiple AWS accounts & renewing API access keys',
     license='MIT',
     url='https://github.com/bartekj/aws-tools',

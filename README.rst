@@ -26,22 +26,6 @@ or system-wide::
 
 This will install aws-tools package as well as all dependencies
 
-------------------
-Command Completion
-------------------
-
-The aws-tools comes with a very useful bash command completion feature.
-This feature isn't automatically installed, so you need to enable it yourself.
-Simply add to your ``.bashrc``:
-
-if you have installed aws-tools in home directory::
-
-    source $HOME/.local/bin/aws_tools_completion.bash
-
-if you have installed aws-tools system-wide::
-
-    source /usr/local/bin/aws_tools_completion.bash
-
 ---------------
 Getting started
 ---------------
@@ -90,6 +74,24 @@ And remove temporary file (smtp.cfg)
 Shell configuration (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Add to ``.bashrc``.
+
+* Command Completion
+
+The aws-tools comes with a very useful bash command completion feature.
+This feature isn't automatically installed, so you need to enable it yourself.
+Simply add to your ``.bashrc``:
+
+if you have installed aws-tools in home directory::
+
+    source $HOME/.local/bin/aws_tools_completion.bash
+
+if you have installed aws-tools system-wide::
+
+    source /usr/local/bin/aws_tools_completion.bash
+
+* Functions
+
 It is also handy to add some bash functions::
 
     function awsenv() {
@@ -100,13 +102,9 @@ It is also handy to add some bash functions::
         __aws_roll_keys -a -s <youremail@domain.com> -i <groupemail@domain.com> -e "${1:-all}"
     }
 
-modify your $PATH (if you have installed aws-tools in home directory)::
+* Displaying current account in your shell
 
-    if [ -d "$HOME/.local/bin" ] ; then
-        PATH="$HOME/.local/bin:$PATH"
-    fi
-
-add to your $PS1, in order to display current AWS account::
+add to $PS1 variable::
 
     $(__awsenv_ps1)
 
