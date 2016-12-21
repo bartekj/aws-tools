@@ -6,6 +6,7 @@ setup(
     name='aws-tools',
     version='1.0.2',
     description='Switching between multiple AWS accounts & renewing API access keys',
+    long_description=open('README.rst').read(),
     license='MIT',
     url='https://github.com/bartekj/aws-tools',
     keywords='aws key keys',
