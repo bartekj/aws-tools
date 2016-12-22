@@ -1,0 +1,19 @@
+language: python
+
+python:
+- 2.6
+- 2.7
+
+deploy:
+  provider: pypi
+  distributions: bdist_wheel
+  server: https://testpypi.python.org/pypi
+  user: radar
+  password:
+    secure: fZt/OuRN/rxbuuFXKLegssCyIOb/K9ppwkLigMJ/jfhbtTildRyun3RW+TSigmFWvczBlfZmQPYeOD+ksI78NOjY/5MhVox4sYxlT7qGyNjxpNWpu6ihbE+rYUBgyrJrJt1szMrF5bXKnSiTlUiqV7Taykl8x8ufLU0nf2lcmUtMiTj+2MFZWT4yHDgY/iJR6RyaU4U/9VY8jgg40kNfPOq3lLUz9TqnoZmLvAyiO9h02S+TzcynahK43O8XUuM0yuWpbUuvRSnBoqt4+utmYT08uHoJDaQT/UiZBnufpr2yX/yG/kteJ+lg1vt5GRMb1A/ny4UhnyL+K871cJe7+vsbTJfkXyA4JcVAS2ot1wGckuc16RiVWaJ4X7p9LJRG9uAmkToVnrAiwunyJCLX0p96Y10IJh36e0xbetHYm5fpN0Jrhiqmh26dn1M0OWddkVEz6a0f1nLt5FkIzf9/T/inVTGsNIEqDMEcfK8ZCnZIoI8qBnXogFvZKBsREH+lFtaqhTSs3Zkzd0L+e6zfGPAAkCNpx0/ipYuW4596hcm6C1ZGt3nG6OnjuGRvTcJ4Uu44vUgpSeHacxwxp9PJOQMPJd/G0ToPz8rcLrDsHtzJt479OG0AlIacRlThWdl3RwpEh6th8c7Lyd8ii7snU7TExSmvnJTt/XaZrhtI1VY=
+  on:
+    branch: master
+    tags: true
+
+notifications:
+  email: false
