@@ -2,6 +2,9 @@
 
 from setuptools import setup, find_packages
 
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
+
 setup(
     name='aws-tools',
     version='1.0.2',
@@ -16,11 +19,7 @@ setup(
         'bin/aws-roll-keys.py',
         'bin/aws_tools_completion.bash',
     ],
-    install_requires=[
-        'argparse',
-        'boto3',
-        'python-gnupg>=0.3.9',
-    ],
+    install_requires=required,
     classifiers=(
         'Development Status :: 4 - Beta',
         'Environment :: Console',
