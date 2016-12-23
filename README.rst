@@ -1,6 +1,10 @@
 aws-tools
 =========
 
+.. image:: https://badge.fury.io/py/aws-tools.svg
+    :target: https://badge.fury.io/py/aws-tools
+    :alt: PyPI
+
 This package provides scripts for:
 
 * switching between multiple AWS accounts
