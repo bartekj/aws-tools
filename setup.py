@@ -7,7 +7,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='aws-tools',
-    version='1.0.6',
+    version='1.0.7',
     description='Switching between multiple AWS accounts & renewing API access keys',
     long_description=open('README.rst').read(),
     license='MIT',
