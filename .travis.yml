@@ -14,5 +14,7 @@ deploy:
   on:
     tags: true
 
+skip_upload_docs: true
+
 notifications:
   email: false
