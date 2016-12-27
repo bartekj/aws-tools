@@ -1,6 +1,8 @@
 language: python
 
-script: true
+install: pip install tox
+
+script: tox
 
 deploy:
   provider: pypi
