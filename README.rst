@@ -1,8 +1,8 @@
 aws-tools
 =========
 
-.. image:: https://badge.fury.io/py/aws-tools.svg
-    :target: https://badge.fury.io/py/aws-tools
+.. image:: https://img.shields.io/pypi/v/aws-tools.svg?maxAge=0
+    :target: https://pypi.python.org/pypi/aws-tools/
     :alt: PyPI
 
 This package provides scripts for:
