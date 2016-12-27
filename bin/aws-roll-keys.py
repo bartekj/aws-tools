@@ -38,7 +38,7 @@ def get_current_key(env, file_path, gpg, phrase):
         logging.error("No private key(s) found! Please check your GPG config")
         return [None, None]
     try:
-        with open(file_path) as file:
+        with open(file_path, 'rb') as file:
             decrypted = gpg.decrypt_file(file, passphrase=phrase)
             if decrypted.status != "decryption ok":
                 logging.error("Unable to decrypt {}".format(file_path))
@@ -64,7 +64,7 @@ def get_smtp_conf(smtpconf, gpg, phrase):
         logging.error("No private key(s) found! Please check your GPG config")
         return [None, None, None, None]
     try:
-        with open(smtpconf) as file:
+        with open(smtpconf, 'rb') as file:
             decrypted = gpg.decrypt_file(file, passphrase=phrase)
             if decrypted.status != "decryption ok":
                 logging.error("Unable to decrypt {}".format(smtpconf))
@@ -91,7 +91,7 @@ def send(srv, sendto, data):
         server.login(srv[0], srv[1])
         server.sendmail(srv[0], sendto, data)
         server.quit()
-        print "Sent to {0}".format(sendto)
+        print("Sent to {0}".format(sendto))
     except Exception as exc:
         logging.error("Can't send email: {0}".format(exc))
         sys.exit(1)
@@ -174,7 +174,7 @@ def main():
                 msgkeys.attach(part1)
                 envs += " {0}".format(env)
 
-    print msgbody
+    print(msgbody)
     vars = dict()
 
     if args.sendkeysto or args.sendinfoto:
