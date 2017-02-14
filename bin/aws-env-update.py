@@ -26,14 +26,16 @@ Simple script that will pick up gpg encrypted files from ~/.aws
 and save them in the ${HOME}/.aws/credentials file\
 Example usage:\n\n\tx1:~$ awsenv test \n'''),
                                     epilog="Copyright (C) 2016 Bart Jakubowski <bartekj@gmail.com>")
-    parser.add_argument("-e", "--env", help="environment name", choices=available_envs, required=True)
+    file_group = parser.add_mutually_exclusive_group(required=True)
+    file_group.add_argument("-e", "--env", help="environment name (conflicts with --file)", choices=available_envs)
+    file_group.add_argument("-f", "--file", help="get credentials from the specified file (conflicts with --env)")
     parser.add_argument("-a", "--use-agent", action="store_true", help="Use GPG agent")
     parser.add_argument("-x", "--export", action="store_true", help="Print eval-friendly output")
     parser.add_argument("--gpg-binary", help="GPG binary to use")
     parser.add_argument("-d", "--debug", action='store_true', help="Debug mode")
     parser.add_argument('-v', "--version", help="Print version", action='version', version='%(prog)s 1.0')
     args = parser.parse_args()
-    return args.env, args.use_agent, args.export, args.gpg_binary, args.debug
+    return args.env, args.file, args.use_agent, args.export, args.gpg_binary, args.debug
 
 def get_passphrase(use_agent=False):
     if use_agent:
@@ -42,7 +44,7 @@ def get_passphrase(use_agent=False):
         return getpass.getpass("Enter the passphrase to decrypt the env file: ")
 
 def main():
-    env, use_agent, export, gpg_binary, debug = get_args()
+    env, file_arg, use_agent, export, gpg_binary, debug = get_args()
 
     if debug:
         log.basicConfig(format="%(levelname)s: %(message)s", level=log.DEBUG)
@@ -50,7 +52,10 @@ def main():
     else:
         log.basicConfig(format="%(levelname)s: %(message)s")
 
-    encrypted_credentials_file = os.path.join(os.sep, aws_config_dir, 'env.{0}.conf.asc'.format(env))
+    if env:
+        encrypted_credentials_file = os.path.join(os.sep, aws_config_dir, 'env.{0}.conf.asc'.format(env))
+    elif file_arg:
+        encrypted_credentials_file = file_arg
 
     log.info('''Variables dump:\n\tenv : {0}\n\thome : {1}\n\taws_config_dir : {2}\n\tencrypted_credentials_file : {3}
     \tcredential_file : {4}'''.format(env, home, aws_config_dir, encrypted_credentials_file, credential_file))
@@ -87,8 +92,9 @@ def main():
         if not export:
             with open(credential_file, 'w') as credential_out:
                 credential_out.write(str(output))
-            with open(env_file, 'w') as env_out:
-                env_out.write(env)
+            if env:
+                with open(env_file, 'w') as env_out:
+                    env_out.write(env)
 
     else:
         log.error('No AWS credentials in the decrypted file!')
