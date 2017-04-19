@@ -4,10 +4,14 @@ import subprocess
 from setuptools import setup, find_packages
 
 try:
-    ver = subprocess.check_output(['git', 'describe', '--abbrev=0']).strip().encode()
+    ver = subprocess.check_output(['git', 'describe', '--abbrev=0']).strip()
+    if type(ver) is bytes:
+        ver = ver.encode()
 except:
     with open('version.py', 'r') as fh:
         ver = open('version.py').read().split('=')[-1].strip()
+        if type(ver) is bytes:
+            ver = ver.encode()
 
 with open('version.py', 'w') as fh:
     fh.write('# This file is managed by git tag\n__version__ = {}\n'.format(ver))
