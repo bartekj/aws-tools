@@ -81,6 +81,7 @@ def get_smtp_conf(smtpconf, gpg, phrase):
     return [LOGIN, PASS, HOST, PORT]
 
 def send(srv, sendto, data):
+    sendto_list = sendto.split(", ")
     try:
         server = smtplib.SMTP(srv[2], srv[3])
         server.set_debuglevel(False)
@@ -89,9 +90,9 @@ def send(srv, sendto, data):
             server.starttls()
             server.ehlo()
         server.login(srv[0], srv[1])
-        server.sendmail(srv[0], sendto, data)
+        server.sendmail(srv[0], sendto_list, data)
         server.quit()
-        print("Sent to {0}".format(sendto))
+        print("Sent to {0}".format(sendto_list))
     except Exception as exc:
         logging.error("Can't send email: {0}".format(exc))
         sys.exit(1)
