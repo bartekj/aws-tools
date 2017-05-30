@@ -59,7 +59,7 @@ def get_passphrase(use_agent=False):
 
 def get_smtp_conf(smtpconf, gpg, phrase):
     private_keys = gpg.list_keys(True)
-    LOGIN, PASS, HOST, PORT, = [None, None, None, None]
+    login, password, host, port, = [None, None, None, None]
     if not private_keys:
         logging.error("No private key(s) found! Please check your GPG config")
         return [None, None, None, None]
@@ -70,15 +70,15 @@ def get_smtp_conf(smtpconf, gpg, phrase):
                 logging.error("Unable to decrypt {}".format(smtpconf))
                 return [None, None, None, None, None, None]
 
-            LOGIN = re.findall(r"{} = (.*)".format("smtplogin"), str(decrypted))[0]
-            PASS = re.findall(r"{} = (.*)".format("smtppass"), str(decrypted))[0]
-            HOST = re.findall(r"{} = (.*)".format("smtphost"), str(decrypted))[0]
-            PORT = re.findall(r"{} = (.*)".format("smtpport"), str(decrypted))[0]
+            login = re.findall(r"{} = (.*)".format("smtplogin"), str(decrypted))[0]
+            password = re.findall(r"{} = (.*)".format("smtppass"), str(decrypted))[0]
+            host = re.findall(r"{} = (.*)".format("smtphost"), str(decrypted))[0]
+            port = re.findall(r"{} = (.*)".format("smtpport"), str(decrypted))[0]
     except IOError:
         logging.error("Can't open {0}".format(smtpconf))
         sys.exit(1)
 
-    return [LOGIN, PASS, HOST, PORT]
+    return [login, password, host, port]
 
 def send(srv, sendto, data):
     sendto_list = sendto.split(", ")
