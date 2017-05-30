@@ -33,23 +33,23 @@ future = today + datetime.timedelta(days=7)
 
 def get_current_key(env, file_path, gpg, phrase):
     private_keys = gpg.list_keys(True)
-    id, key = [None, None]
+    id, key = (None, None)
     if not private_keys:
         logging.error("No private key(s) found! Please check your GPG config")
-        return [None, None]
+        return (None, None)
     try:
         with open(file_path, 'rb') as file:
             decrypted = gpg.decrypt_file(file, passphrase=phrase)
             if decrypted.status != "decryption ok":
                 logging.error("Unable to decrypt {}".format(file_path))
-                return [None, None]
+                return (None, None)
 
             id = re.findall(r"{} = (.*)".format(KEY_ID), str(decrypted))[0]
             key = re.findall(r"{} = (.*)".format(ACCESS_KEY), str(decrypted))[0]
     except IOError:
         logging.warning("File for env {} not found. Skipping.".format(env))
 
-    return [id, key]
+    return (id, key)
 
 def get_passphrase(use_agent=False):
     if use_agent:
@@ -59,16 +59,16 @@ def get_passphrase(use_agent=False):
 
 def get_smtp_conf(smtpconf, gpg, phrase):
     private_keys = gpg.list_keys(True)
-    login, password, host, port, = [None, None, None, None]
+    login, password, host, port, = (None, None, None, None)
     if not private_keys:
         logging.error("No private key(s) found! Please check your GPG config")
-        return [None, None, None, None]
+        return (None, None, None, None)
     try:
         with open(smtpconf, 'rb') as file:
             decrypted = gpg.decrypt_file(file, passphrase=phrase)
             if decrypted.status != "decryption ok":
                 logging.error("Unable to decrypt {}".format(smtpconf))
-                return [None, None, None, None, None, None]
+                return (None, None, None, None)
 
             login = re.findall(r"{} = (.*)".format("smtplogin"), str(decrypted))[0]
             password = re.findall(r"{} = (.*)".format("smtppass"), str(decrypted))[0]
@@ -78,7 +78,7 @@ def get_smtp_conf(smtpconf, gpg, phrase):
         logging.error("Can't open {0}".format(smtpconf))
         sys.exit(1)
 
-    return [login, password, host, port]
+    return (login, password, host, port)
 
 def send(srv, sendto, data):
     sendto_list = sendto.split(", ")
