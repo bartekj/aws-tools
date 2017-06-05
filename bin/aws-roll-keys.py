@@ -81,7 +81,7 @@ def get_smtp_conf(smtpconf, gpg, phrase):
     return (login, password, host, port)
 
 def send(srv, sendto, data):
-    sendto_list = sendto.split(", ")
+    sendto_list = re.split(r',\s*', sendto)
     try:
         server = smtplib.SMTP(srv[2], srv[3])
         server.set_debuglevel(False)
