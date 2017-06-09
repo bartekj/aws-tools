@@ -12,12 +12,12 @@ function __aws_roll_keys() {
 
 function __awsenv_ps1() {
     if [ -e "$HOME/.aws/credentials" ]; then
-        ps=$(cat $HOME/.aws/.env 2>/dev/null)
+        ps="<$(cat $HOME/.aws/.env 2>/dev/null)> "
     fi
     if [ -n "$AWS_ENV" ]; then
-        ps="$AWS_ENV"
+        ps="<$AWS_ENV> "
     fi
-    echo "<$ps>"
+    echo "$ps"
 }
 
 function __aws_envs() {
