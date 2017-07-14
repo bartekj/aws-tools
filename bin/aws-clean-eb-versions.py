@@ -7,6 +7,10 @@ import boto3
 
 client = boto3.client("elasticbeanstalk")
 
+# Fix Python 2.x.
+try: input = raw_input
+except NameError: pass
+
 # get list of currently deployed versions for each app
 def get_deployed_versions():
     res = {}
@@ -72,18 +76,18 @@ def main():
         versions_to_keep = get_kept_versions(deployed_versions[app], app_versions[app], args.keep_versions)
         versions_to_delete = get_deleted_versions(deployed_versions[app], app_versions[app], args.keep_versions)
         if len(versions_to_delete) == 0:
-            print "%s - Nothing to delete" % app
+            print("%s - Nothing to delete" % app)
             continue
-        print "%s - %s versions will remain. %s versions will be deleted" % ( app, len(versions_to_keep), len(versions_to_delete) )
+        print("%s - %s versions will remain. %s versions will be deleted" % ( app, len(versions_to_keep), len(versions_to_delete) ) )
         if args.force:
             userInput = "y"
         else:
-            print "Are you sure you want to delete? (Y/N)"
-            userInput = raw_input(':')
+            print("Are you sure you want to delete? (Y/N)")
+            userInput = input(':')
         if userInput.lower() == "y":
             for version in versions_to_delete:
                 delete_version(version, app)
-                print "Deleted version ", version
+                print ("Deleted version %s", (version) )
 
 if __name__ == "__main__":
     main()
