@@ -92,7 +92,6 @@ def send(srv, sendto, data):
         server.login(srv[0], srv[1])
         server.sendmail(srv[0], sendto_list, data)
         server.quit()
-        print("Sent to {0}".format(sendto_list))
     except Exception as exc:
         logging.error("Can't send email: {0}".format(exc))
         sys.exit(1)
@@ -109,7 +108,7 @@ def main():
                         choices=available_envs + ["all"])
     parser.add_argument("-s", "--send", help="Send an email with new keys to",
                         action="store", dest="sendkeysto")
-    parser.add_argument("-i", "--info", help="Send info about rotation to",
+    parser.add_argument("-i", "--info", help="Send an email about rotation to",
                         action="store", dest="sendinfoto")
     parser.add_argument("-a", "--use-agent", action="store_true", help="Use GPG agent")
     parser.add_argument("--gpg-binary", help="GPG binary to use")
@@ -162,7 +161,7 @@ def main():
 
         client.delete_access_key(AccessKeyId=current_key_id)
 
-        msgbody += "Rolled key for env {}: AccessKeyId={}; CreateDate={}\n".format(
+        msgbody += "Rolled key for env {}: AccessKeyId={}; CreateDate={}\r\n".format(
             env, "*" * 16 + resp["AccessKey"]["AccessKeyId"][-5:],
             resp["AccessKey"]["CreateDate"]
         )
@@ -188,6 +187,8 @@ def main():
         msgkeys["Subject"] = "AWS keys: {}".format(envs)
 
         send(srv, args.sendkeysto, msgkeys.as_string())
+        addr_list = re.split(r',\s*', args.sendkeysto)
+        print("Keys sent to: {0}".format(', '.join(addr_list)))
 
     if args.sendinfoto:
         msginfo = MIMEText(msgbody, "plain", "utf-8")
@@ -197,6 +198,8 @@ def main():
             today.strftime("%Y%m%d"), future.strftime("%Y%m%d"))
 
         send(srv, args.sendinfoto, msginfo.as_string())
+        addr_list = re.split(r',\s*', args.sendinfoto)
+        print("Info sent to: {0}".format(', '.join(addr_list)))
 
 
 if __name__ == "__main__":
