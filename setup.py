@@ -31,6 +31,7 @@ setup(
     scripts=[
         'bin/aws-env-update.py',
         'bin/aws-roll-keys.py',
+        'bin/aws-list-ec2.py',
         'bin/aws-clean-eb-versions.py',
         'bin/aws_tools_completion.bash',
     ],
