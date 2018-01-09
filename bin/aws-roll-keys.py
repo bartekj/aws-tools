@@ -31,8 +31,6 @@ aws_config_dir = "{}/.aws/".format(home)
 today = datetime.date.today()
 future = today + datetime.timedelta(days=7)
 
-gpg.encoding = 'utf-8'
-
 def get_current_key(env, file_path, gpg, phrase):
     private_keys = gpg.list_keys(True)
     id, key = (None, None)
@@ -132,6 +130,7 @@ def main():
         gpg = gnupg.GPG(use_agent=args.use_agent, gpgbinary=args.gpg_binary)
     else:
         gpg = gnupg.GPG(use_agent=args.use_agent)
+    gpg.encoding = 'utf-8'
     phrase = get_passphrase(args.use_agent)
 
     msgkeys = MIMEMultipart()
