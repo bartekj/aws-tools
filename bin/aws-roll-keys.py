@@ -130,6 +130,7 @@ def main():
         gpg = gnupg.GPG(use_agent=args.use_agent, gpgbinary=args.gpg_binary)
     else:
         gpg = gnupg.GPG(use_agent=args.use_agent)
+    gpg.encoding = 'utf-8'
     phrase = get_passphrase(args.use_agent)
 
     msgkeys = MIMEMultipart()
