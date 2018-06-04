@@ -97,12 +97,15 @@ def get_ec2():
 
             keyfound = False
 
-            for tag in instance.tags:
-                if tag['Key'] == 'Name':
-                    ec2info.append(tag['Value'])
-                    keyfound = True
-                    break
-            if not keyfound:
+            if instance.tags is not None:
+                for tag in instance.tags:
+                    if tag['Key'] == 'Name':
+                        ec2info.append(tag['Value'])
+                        keyfound = True
+                        break
+                if not keyfound:
+                    ec2info.append('')
+            else:
                 ec2info.append('')
 
             print(position.format(*ec2info))
