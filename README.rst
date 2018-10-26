@@ -2,144 +2,165 @@ aws-tools
 =========
 
 .. image:: https://img.shields.io/pypi/v/aws-tools.svg?maxAge=0
-    :target: https://pypi.python.org/pypi/aws-tools/
+    :target: https://pypi.org/project/aws-tools/
     :alt: PyPI
 
-This package provides scripts for:
+This package provides tools for AWS platform, such as:
 
-* switching between multiple AWS accounts
-* renewing AWS API access keys
+-  switching between multiple accounts
+-  renewing API access keys
 
-------------
-Installation
-------------
+and others.
 
-The easiest way to install aws-tools is to use `pip`:
-
-in your home directory::
-
-    pip install --user aws-tools
-
-inside a ``virtualenv``::
-
-    pip install aws-tools
-
-or system-wide::
-
-    sudo pip install aws-tools
-
-This will install aws-tools package as well as all dependencies
-
----------------
 Getting started
 ---------------
 
-^^^^^^^^^^^^^^^^^
-AWS configuration
-^^^^^^^^^^^^^^^^^
+..
 
-Before using aws-tools you have to configure your AWS environments and credentials::
+    Prerequisites:
 
-    $ cat .aws/env.test.conf
+    aws-tools requires gpg (version >= 2.X) to decrypt/encrypt your AWS credentials.
+
+
+Install necessary packages, and generate a new key pair:
+
+::
+
+    $ sudo apt-get install gpg gpg-agent
+    $ gpg --gen-key
+
+..
+
+    This document covers only gpg commands required to run aws-tools! If
+    you need to use other gpg parameters, go to gpg documentation.
+
+Installation
+~~~~~~~~~~~~
+
+Simply run:
+
+::
+
+    $ pip install --user aws-tools
+
+Configuration
+~~~~~~~~~~~~~
+
+AWS Credentials
+^^^^^^^^^^^^^^^
+
+In ``~/.aws`` directory create temporary ``env.<environment>.conf`` file
+for each AWS environment.
+
+For example, if you have 3 AWS environments: TEST, STAGE and PROD, there
+should be 3 config files in ``~/.aws`` directory:
+
+::
+
+    env.test.conf
+    env.stage.conf
+    env.prod.conf
+
+Edit each file:
+
+.. code:: cfg
+
     [default]
-    aws_access_key_id = <your_access_key>
-    aws_secret_access_key = <your_secret_access_key_id>
+    aws_access_key_id = <your_environment_specific_access_key_id>
+    aws_secret_access_key = <your_environment_specific_secret_access_key>
 
-The same goes for the other environments, for example: stage and production.
+Encrypt each file with gpg:
 
-Encrypt all of the files with gpg::
+::
 
-    gpg --encrypt --armor --output env.test.conf.asc -r <your-gpg-user-id-name> env.test.conf
-    gpg --encrypt --armor --output env.stage.conf.asc -r <your-gpg-user-id-name> env.stage.conf
-    gpg --encrypt --armor --output env.production.conf.asc -r <your-gpg-user-id-name> env.production.conf
+    $ gpg --encrypt --armor --output env.<environment>.conf.asc -r <your-gpg-user-id-name> env.<environment>.conf
 
-and remove temporary files (env*conf).
+and remove temporary ``env.*.conf`` files!
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-SMTP configuration (-s and -i) (optional)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..
 
-In the ``.aws`` directory:
+    Run ``gpg -K`` to find out what is your ``<your-gpg-user-id-name>``
 
-smtp.cfg (temporary file)::
+SMTP credentials (optional)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    smtplogin = <full_smtp_login>
-    smtppass = <password>
+This step is helpful if you want to send renewed AWS access keys to an
+email.
+
+In ``~/.aws`` directory create temporary ``smtp.cfg`` file.
+
+Edit smtp settings:
+
+.. code:: cfg
+
+    smtplogin = <your_full_smtp_login>
+    smtppass = <your_password>
     smtphost = <smtp_host>
     smtpport = <smtp_port>
 
-Ecrypt it::
+Encrypt config file with gpg:
 
-    gpg --encrypt --armor --output smtp.cfg.asc -r <your-gpg-user-id-name> smtp.cfg
+::
 
-And remove temporary file (smtp.cfg)
+    $ gpg --encrypt --armor --output smtp.cfg.asc -r <your-gpg-user-id-name> smtp.cfg
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Shell configuration (optional)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+and remove temporary ``smtp.cfg`` file!
 
-Add to ``.bashrc``.
+Shell
+^^^^^
 
-* Command Completion
+aws-tools comes with handy bash functions and command completion
+feature. Simply add to your ``~/.bashrc``:
 
-The aws-tools comes with a very useful bash command completion feature.
-This feature isn't automatically installed, so you need to enable it yourself.
-Simply add to your ``.bashrc``:
+.. code:: cfg
 
-if you have installed aws-tools in home directory::
+    source $HOME/.local/bin/aws_tools_completion.bash 2>/dev/null
 
-    source $HOME/.local/bin/aws_tools_completion.bash
+You can also display info which AWS access keys you are using. Add to ``$PS1`` variable (usually in ``~/.bashrc``):
 
-if you have installed aws-tools system-wide::
+.. code:: cfg
 
-    source /usr/local/bin/aws_tools_completion.bash
+    $(__awsenv_ps1 2>/dev/null)
 
-* Functions
-
-It is also handy to add some bash functions::
-
-    function awsenv() {
-        __aws_env_update -x -a -e $1
-    }
-
-    function awsroll() {
-        __aws_roll_keys -a -s <youremail@domain.com> -i <groupemail@domain.com> -e "${1:-all}"
-    }
-
-* Displaying current account in your shell
-
-add to $PS1 variable::
-
-    $(__awsenv_ps1)
-
------
 Usage
 -----
 
-^^^^^^^^
 Examples
-^^^^^^^^
+~~~~~~~~
 
-Switch to ``test`` account and write credentials to ``.aws/credentials`` file::
+Autocompletion:
 
-    $ aws-env-update.py -a -e test
+::
 
-Switch to ``test`` account using shell variables::
+    $ awsenv<TAB><TAB>
+    prod stage test
 
-    $ eval $(aws-env-update.py -a -e test -x)
+Use TEST access keys:
 
-The same, but after sourcing ``aws_tools_completion.bash``::
+::
 
     $ awsenv test
 
-Rotating AWS API keys for ``stage`` account::
+Rotate PROD access keys:
 
-    $ aws-roll-keys.py -a -e stage
+::
 
-Rotating AWS API keys for ``production`` account and sending the new keys to you::
+    $ awsroll prod
 
-    $ aws-roll-keys.py -a -e production -s <youremail@domain.com>
+Rotate access keys for all environments:
 
-Rotating AWS API keys for all of environments and sending confirmation to the group::
+::
 
-    $ aws-roll-keys.py -a -e all -i <groupemail@domain.com>
+    $ awsroll
+
+Rotate access keys for all environments using gpg agent, and send them to the email:
+
+::
+
+    $ aws-roll-keys.py -a -e all -s <email@domain.org>
+
+Rotate access keys for TEST environment and send info to the email:
+
+::
+
+    $ aws-roll-keys.py -e test -i <email@domain.org>

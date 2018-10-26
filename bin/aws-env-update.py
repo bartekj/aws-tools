@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import argparse
 import getpass
 import logging as log
@@ -6,6 +7,7 @@ import os
 import re
 import sys
 import gnupg
+
 
 debug = 0
 home = os.environ['HOME']
@@ -23,8 +25,8 @@ def get_args():
     parser = argparse.ArgumentParser(__file__, formatter_class=argparse.RawDescriptionHelpFormatter,
                                     description=('''\
 Simple script that will pick up gpg encrypted files from ~/.aws
-and save them in the ${HOME}/.aws/credentials file\
-Example usage:\n\n\tx1:~$ awsenv test \n'''),
+and save them in the ${HOME}/.aws/credentials file.
+Usage:\n\n\t$ awsenv test \n'''),
                                     epilog="Copyright (C) 2016 Bart Jakubowski <bartekj@gmail.com>")
     file_group = parser.add_mutually_exclusive_group(required=True)
     file_group.add_argument("-e", "--env", help="environment name (conflicts with --file)", choices=available_envs)
