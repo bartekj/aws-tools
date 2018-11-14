@@ -12,6 +12,54 @@ This package provides tools for AWS platform, such as:
 
 and others.
 
+The main reason why aws-tools came to be, was using different access keys in your local shell in the easy and secure way.
+
+Switching between AWS accounts:
+
+::
+
+    $ awsenv test
+    <test> $ aws s3 ls
+    ...list of S3 objects on TEST environment...
+
+    ### Explanation:
+    ### <test> $ env | grep AWS
+    ### AWS_SECRET_ACCESS_KEY=w0bM0rucARITPOUpcyAaX3iI9lGjJo7g8UUCUxIv
+    ### AWS_ACCESS_KEY_ID=AKIAJPVK7VGH6CBZT5EQ
+    ### AWS_ENV=test
+
+    <test> $ awsenv prod
+    <prod> $ aws s3 ls
+    ...list of S3 objects on PROD environment...
+
+    ### Explanation:
+    ### <prod> $ env | grep AWS
+    ### AWS_SECRET_ACCESS_KEY=P8crbSIvQ/Au0jfnW8XER9eJKxpQdYqpRVz5QxKo
+    ### AWS_ACCESS_KEY_ID=AKIAJ4F26CMBPI1HF7MQ
+    ### AWS_ENV=prod
+
+Renewing AWS API access keys:
+
+::
+
+    $ awsenv prod
+
+    ### Explanation:
+    ### <prod> $ env | grep AWS
+    ### AWS_SECRET_ACCESS_KEY=P8crbSIvQ/Au0jfnW8XER9eJKxpQdYqpRVz5QxKo
+    ### AWS_ACCESS_KEY_ID=AKIAJ4F26CMBPI1HF7MQ
+    ### AWS_ENV=prod
+
+    <prod> $ awsroll prod
+    Rolled key for env prod: AccessKeyId=****************ZKQFQ; CreateDate=2018-11-14 13:10:04+00:00
+    <prod> $ awsenv prod
+
+    ### Explanation:
+    ### <prod> $ env | grep AWS
+    ### AWS_SECRET_ACCESS_KEY=napb9J2RKzsSiTIjLRavN09qIfFzrMo7846zr2ou
+    ### AWS_ACCESS_KEY_ID=AKIAJTGB6EFV7F4ZKGFQ
+    ### AWS_ENV=prod
+
 Getting started
 ---------------
 
@@ -116,11 +164,13 @@ feature. Simply add to your ``~/.bashrc``:
 
     source $HOME/.local/bin/aws_tools_completion.bash 2>/dev/null
 
-You can also display info which AWS access keys you are using. Add to ``$PS1`` variable (usually in ``~/.bashrc``):
+For the best result include into ``PS1`` (usually in ``~/.bashrc``):
 
 .. code:: cfg
 
     $(__awsenv_ps1 2>/dev/null)
+
+It will display info which AWS access keys you are using.
 
 Usage
 -----
@@ -140,6 +190,12 @@ Use TEST access keys:
 ::
 
     $ awsenv test
+
+Unset AWS access keys for current shell:
+
+::
+
+    $ awsenv unset
 
 Rotate PROD access keys:
 
