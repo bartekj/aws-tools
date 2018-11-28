@@ -12,7 +12,7 @@ This package provides tools for AWS platform, such as:
 
 and others.
 
-The main reason why aws-tools came to be, was using different access keys in your local shell in the easy and secure way.
+The main reason why aws-tools came to be, was using [awscli](https://pypi.org/project/awscli/) with different access keys in the secure and easy way.
 
 Switching between AWS accounts:
 
@@ -82,6 +82,20 @@ Install necessary packages, and generate a new key pair:
     This document covers only gpg commands required to run aws-tools! If
     you need to use other gpg parameters, go to gpg documentation.
 
+Configure your region using [awscli](https://pypi.org/project/awscli/) if you haven't done that yet:
+
+::
+
+    $ aws configure
+    AWS Access Key ID [None]:
+    AWS Secret Access Key [None]:
+    Default region name [None]: eu-west-1
+    Default output format [None]:
+
+..
+
+    Do not provide any keys here!
+
 Installation
 ~~~~~~~~~~~~
 
@@ -129,6 +143,17 @@ and remove temporary ``env.*.conf`` files!
 
     Run ``gpg -K`` to find out what is your ``<your-gpg-user-id-name>``
 
+Shell
+^^^^^
+
+aws-tools comes with handy command completion and bash prompt features.
+Simply add to your ``~/.bashrc``:
+
+.. code:: cfg
+
+    source $HOME/.local/bin/aws_tools_completion.bash 2>/dev/null
+    export PS1="\$(__awsenv_ps1 2>/dev/null)${PS1}"
+
 SMTP credentials (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -153,24 +178,6 @@ Encrypt config file with gpg:
     $ gpg --encrypt --armor --output smtp.cfg.asc -r <your-gpg-user-id-name> smtp.cfg
 
 and remove temporary ``smtp.cfg`` file!
-
-Shell
-^^^^^
-
-aws-tools comes with handy bash functions and command completion
-feature. Simply add to your ``~/.bashrc``:
-
-.. code:: cfg
-
-    source $HOME/.local/bin/aws_tools_completion.bash 2>/dev/null
-
-For the best result include into ``PS1`` (usually in ``~/.bashrc``):
-
-.. code:: cfg
-
-    $(__awsenv_ps1 2>/dev/null)
-
-It will display info which AWS access keys you are using.
 
 Usage
 -----
