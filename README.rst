@@ -12,7 +12,7 @@ This package provides tools for AWS platform, such as:
 
 and others.
 
-The main reason why aws-tools came to be, was using [awscli](https://pypi.org/project/awscli/) with different access keys in the secure and easy way.
+The main reason why aws-tools came to be, was using `awscli`_ with different access keys in the secure and easy way.
 
 Switching between AWS accounts:
 
@@ -82,7 +82,7 @@ Install necessary packages, and generate a new key pair:
     This document covers only gpg commands required to run aws-tools! If
     you need to use other gpg parameters, go to gpg documentation.
 
-Configure your region using [awscli](https://pypi.org/project/awscli/) if you haven't done that yet:
+Configure your region using `awscli`_ if you haven't done that yet:
 
 ::
 
@@ -227,3 +227,8 @@ Rotate access keys for TEST environment and send info to the email:
 ::
 
     $ aws-roll-keys.py -e test -i <email@domain.org>
+
+
+
+
+.. _awscli: https://pypi.org/project/awscli/
