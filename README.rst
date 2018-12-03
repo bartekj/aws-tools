@@ -57,7 +57,7 @@ Renewing AWS API access keys:
     ### Explanation:
     ### <prod> $ env | grep AWS
     ### AWS_SECRET_ACCESS_KEY=napb9J2RKzsSiTIjLRavN09qIfFzrMo7846zr2ou
-    ### AWS_ACCESS_KEY_ID=AKIAJTGB6EFV7F4ZKGFQ
+    ### AWS_ACCESS_KEY_ID=AKIAJTGB6EFV7F4ZKQFQ
     ### AWS_ENV=prod
 
 Getting started
