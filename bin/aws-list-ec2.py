@@ -59,10 +59,9 @@ def legend():
 
 def get_ec2():
     for instance in instances:
-        ec2info = collections.OrderedDict()
 
         if ec2id:
-            ec2info[arg] = [
+            ec2info = collections.OrderedDict([
                 ('Instance Id', instance.id),
                 ('State', instance.state['Name']),
                 ('Type', instance.instance_type),
@@ -78,10 +77,9 @@ def get_ec2():
                 ('ARN profile', instance.iam_instance_profile),
                 ('Security groups', instance.security_groups),
                 ('Tags', instance.tags)
-            ]
+            ])
 
-            ec2json = json.loads(json.dumps(ec2info[arg]))
-            print(json.dumps(ec2json, indent=2))
+            print(json.dumps(ec2info, indent=2))
 
         else:
             ec2info = [
