@@ -11,7 +11,7 @@ ec2 = boto3.resource('ec2')
 instances = ec2.instances.filter(InstanceIds=[])
 ec2id = False
 # https://pyformat.info/
-position = '{!s:<22} {!s:<12} {!s:<14} {!s:<18} {!s:<18} {!s:<16} {!s:<18} {!s:<30} {!s:<42}'
+position = '{!s:<22} {!s:<12} {!s:<14} {!s:<18} {!s:<18} {!s:<22} {!s:<22} {!s:<30} {!s:<42}'
 
 
 def usage():
@@ -43,7 +43,7 @@ for opt, arg in opts:
 
 def legend():
     if not ec2id:
-        print('-' * 198)
+        print('-' * 200)
         print(position.format(
             'Instance Id',
             'State',
@@ -55,7 +55,7 @@ def legend():
             'Launch Time',
             'Name'
         ))
-        print('-' * 198)
+        print('-' * 200)
 
 def get_ec2():
     for instance in instances:
