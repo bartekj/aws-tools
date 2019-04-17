@@ -51,7 +51,7 @@ def legend():
             'Private IP',
             'Public IP',
             'VPC Id',
-            'Subnet Id',
+            'AMI Id',
             'Launch Time',
             'Name'
         ))
@@ -89,7 +89,7 @@ def get_ec2():
                 instance.private_ip_address,
                 instance.public_ip_address,
                 instance.vpc_id,
-                instance.subnet_id,
+                instance.image_id,
                 str(instance.launch_time)
             ]
 
