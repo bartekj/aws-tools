@@ -14,6 +14,9 @@ and others.
 
 The main reason why aws-tools came to be, was using `awscli`_ with different access keys in the secure and easy way.
 
+How it works
+------------
+
 Switching between AWS accounts:
 
 ::
