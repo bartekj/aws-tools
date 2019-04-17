@@ -74,7 +74,7 @@ def get_ec2():
                 ('Root device type', instance.root_device_type),
                 ('Root device name', instance.root_device_name),
                 ('Key pair name', instance.key_name),
-                ('ARN profile', instance.iam_instance_profile),
+                ('ARN profile', instance.iam_instance_profile['Arn']),
                 ('Security groups', instance.security_groups),
                 ('Tags', instance.tags)
             ])
