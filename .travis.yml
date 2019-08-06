@@ -1,5 +1,6 @@
 ---
 language: python
+if: tag IS present
 
 python:
   - 2.7
