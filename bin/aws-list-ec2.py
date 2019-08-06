@@ -61,6 +61,9 @@ def get_ec2():
     for instance in instances:
 
         if ec2id:
+            sg = {i['GroupId']: i['GroupName'] for i in instance.security_groups}
+            tag = {i['Key']: i['Value'] for i in instance.tags}
+
             ec2info = collections.OrderedDict([
                 ('Instance Id', instance.id),
                 ('State', instance.state['Name']),
@@ -78,8 +81,8 @@ def get_ec2():
                 ('EBS optimized', instance.ebs_optimized),
                 ('Key pair name', instance.key_name),
                 ('ARN profile', instance.iam_instance_profile['Arn']),
-                ('Security groups', instance.security_groups),
-                ('Tags', instance.tags)
+                ('Security groups', sg),
+                ('Tags', tag)
             ])
 
             print(json.dumps(ec2info, indent=2))
