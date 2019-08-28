@@ -148,7 +148,13 @@ def main():
         client = boto3.client("iam", aws_access_key_id=key_id, aws_secret_access_key=access_key)
         current_key_id = \
             client.list_access_keys()["AccessKeyMetadata"][0]["AccessKeyId"]
-        resp = client.create_access_key()
+
+        try:
+            resp = client.create_access_key()
+        except Exception as exc:
+            logging.error("Can't create a new access key: {0}".format(exc))
+            sys.exit(1)
+
         new_id = resp["AccessKey"]["AccessKeyId"]
         new_key = resp["AccessKey"]["SecretAccessKey"]
 
