@@ -1,3 +1,4 @@
-argparse
-boto3
+python-gnupg>=0.4.6
+argparse>=1.4.0
+boto3>=1.10.8
 python-gnupg>=0.4.6

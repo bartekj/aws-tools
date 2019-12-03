@@ -19,14 +19,14 @@ def get_args():
     '''This function parses and return arguments passed in'''
     available_envs = list(
         map(lambda file: re.sub(r"env.(.*).conf.asc", r"\1", file),
-            filter(lambda file: file.startswith("env"),
+            filter(lambda file: file.endswith(".asc"),
                    os.listdir(aws_config_dir))))
 
     parser = argparse.ArgumentParser(__file__, formatter_class=argparse.RawDescriptionHelpFormatter,
                                     description=('''\
 Simple script that will pick up gpg encrypted files from ~/.aws
 and save them in the ${HOME}/.aws/credentials file.
-Usage:\n\n\t$ awsenv test \n'''),
+Usage:\n\n\t$ ''' + os.path.basename(__file__) + ''' [options] [parameters] \n'''),
                                     epilog="Copyright (C) 2016 Bart Jakubowski <bartekj@gmail.com>")
     file_group = parser.add_mutually_exclusive_group(required=True)
     file_group.add_argument("-e", "--env", help="environment name (conflicts with --file)", choices=available_envs)
