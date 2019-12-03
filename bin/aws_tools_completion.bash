@@ -25,7 +25,7 @@ function awsroll() {
     aws-roll-keys.py -a -e "${1:-all}"
 }
 
-function awsenv() {
+function aws-env-update.py() {
     if [[ $1 == "unset" ]]; then
         unset AWS_ENV AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
     else
@@ -33,4 +33,4 @@ function awsenv() {
     fi
 }
 
-complete -F __aws_envs awsenv
+complete -F __aws_envs aws-env-update.py
