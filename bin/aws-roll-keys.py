@@ -99,7 +99,7 @@ def send(srv, sendto, data):
 def main():
     available_envs = list(
         map(lambda file: re.sub(r"^env.(.*).conf.asc$", r"\1", file),
-            filter(lambda file: file.startswith("env"),
+            filter(lambda file: file.endswith(".asc"),
                    os.listdir(aws_config_dir))))
     parser = argparse.ArgumentParser(
         description="Rolls AWS IAM Access Keys for all or specified env(s)",
