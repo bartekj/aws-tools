@@ -21,7 +21,7 @@ Switching between AWS accounts:
 
 ::
 
-    $ awsenv test
+    $ aws-env-update.py test
     <test> $ aws s3 ls
     ...list of S3 objects on TEST environment...
 
@@ -31,7 +31,7 @@ Switching between AWS accounts:
     ### AWS_ACCESS_KEY_ID=AKIAJPVK7VGH6CBZT5EQ
     ### AWS_ENV=test
 
-    <test> $ awsenv prod
+    <test> $ aws-env-update.py prod
     <prod> $ aws s3 ls
     ...list of S3 objects on PROD environment...
 
@@ -45,7 +45,7 @@ Renewing AWS API access keys:
 
 ::
 
-    $ awsenv prod
+    $ aws-env-update.py prod
 
     ### Explanation:
     ### <prod> $ env | grep AWS
@@ -55,7 +55,7 @@ Renewing AWS API access keys:
 
     <prod> $ awsroll prod
     Rolled key for env prod: AccessKeyId=****************ZKQFQ; CreateDate=2018-11-14 13:10:04+00:00
-    <prod> $ awsenv prod
+    <prod> $ aws-env-update.py prod
 
     ### Explanation:
     ### <prod> $ env | grep AWS
@@ -192,20 +192,20 @@ Autocompletion:
 
 ::
 
-    $ awsenv<TAB><TAB>
+    $ aws-env-update.py<TAB><TAB>
     prod stage test
 
 Use TEST access keys:
 
 ::
 
-    $ awsenv test
+    $ aws-env-update.py test
 
 Unset AWS access keys for current shell:
 
 ::
 
-    $ awsenv unset
+    $ aws-env-update.py unset
 
 Rotate PROD access keys:
 
