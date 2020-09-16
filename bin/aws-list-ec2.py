@@ -80,7 +80,7 @@ def get_ec2():
                 ('Root device name', instance.root_device_name),
                 ('EBS optimized', instance.ebs_optimized),
                 ('Key pair name', instance.key_name),
-                ('ARN profile', instance.iam_instance_profile['Arn']),
+                ('ARN profile', instance.iam_instance_profile),
                 ('Security groups', sg),
                 ('Tags', tag)
             ])
