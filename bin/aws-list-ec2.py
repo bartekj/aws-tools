@@ -62,7 +62,7 @@ def get_ec2():
 
         if ec2id:
             sg = {i['GroupId']: i['GroupName'] for i in instance.security_groups}
-            tag = {i['Key']: i['Value'] for i in instance.tags}
+            tag = {i['Key']: i['Value'] for i in instance.tags or []}
 
             ec2info = collections.OrderedDict([
                 ('Instance Id', instance.id),
